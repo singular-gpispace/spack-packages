@@ -66,7 +66,7 @@ spack repo add $software_ROOT/spack-packages
 ```
 
 ## Installing packages
-The user may no install any of the packages described in this repo, for instance
+The user may now install any of the packages described in this repo, for instance
 
 ```bash
 spack install pfd
