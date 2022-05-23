@@ -39,7 +39,7 @@ Run the setup script in the spack repo:
 Note, this setup needs to be run for every new session in which the user wishes
 to use spack.
 
-When cloning spack initially, Spack still needs to boostrap clingo. This can be
+When cloning spack initially, Spack still needs to bootstrap clingo. This can be
 done by concretizing any spec, for example
 ```bash
 spack spec zlib
@@ -66,7 +66,7 @@ spack repo add $software_ROOT/spack-packages
 ```
 
 ## Installing packages
-The user may no install any of the packages described in this repo, for instance
+The user may now install any of the packages described in this repo, for instance
 
 ```bash
 spack install pfd
