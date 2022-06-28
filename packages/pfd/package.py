@@ -16,7 +16,6 @@ class Pfd(CMakePackage):
     maintainers = ['MHeymann', 'jankoboehm', 'lristau', 'mrahn']
 
     version('latest', branch='public_candidate')
-    version('0.02', sha256='945e8419258f53bd29dc03aa6b2f36caa92900f4f9893747e28683d76df20653')
 
     depends_on('singular@snapshot_22_03')
     depends_on('gpi-space@22.03')
@@ -30,3 +29,9 @@ class Pfd(CMakePackage):
                , self.define("FLINT_HOME", spec['flint'].prefix)
                ]
         return args
+
+    def setup_run_environment(self, env):
+        spec = self.spec
+        env.set('SINGULAR_INSTALL_DIR', spec['singular'].prefix)
+        env.set('PFD_INSTALL_DIR', self.prefix)
+
