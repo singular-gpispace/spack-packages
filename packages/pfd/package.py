@@ -18,7 +18,7 @@ class Pfd(CMakePackage):
     version('latest', branch='public_candidate')
 
     depends_on('singular@snapshot_22_03')
-    depends_on('gpi-space@22.03')
+    depends_on('gpi-space@22.03 ^libssh2@1.9')
     depends_on('flint@2.6.3')
 
     def cmake_args(self):
