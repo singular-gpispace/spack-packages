@@ -69,13 +69,13 @@ spack repo add $software_ROOT/spack-packages
 The user may now install any of the packages described in this repo, for instance
 
 ```bash
-spack install pfd
+spack install pfd-parallel
 ```
 Once the installation is done (which may take some time), the user needs to load
 the installed package
 
 ```bash
-spack load pfd
+spack load pfd-parallel
 ```
 
 Please refer to the repos of the various projects on how to run them.
