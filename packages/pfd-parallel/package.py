@@ -6,16 +6,16 @@
 from spack import *
 
 
-class Pfd(CMakePackage):
+class PfdParallel(CMakePackage):
     """FIXME: Put a proper description of your package here."""
 
-    homepage = "https://github.com/singular-gpispace/PFD"
-    url      = "https://github.com/singular-gpispace/PFD/archive/refs/tags/v0.02.tar.gz"
-    git      = "git@github.com:singular-gpispace/PFD2"
+    homepage = "https://github.com/singular-gpispace/pfd-parallel"
+    url      = "https://github.com/singular-gpispace/pfd-parallel/archive/refs/tags/v0.02.tar.gz"
+    git      = "git@github.com:singular-gpispace/pfd-parallel"
 
     maintainers = ['MHeymann', 'jankoboehm', 'lristau', 'mrahn']
 
-    version('latest', branch='public_candidate')
+    version('latest', branch='main')
 
     depends_on('singular@snapshot_22_03')
     depends_on('gpi-space@22.03 ^libssh2@1.9')
