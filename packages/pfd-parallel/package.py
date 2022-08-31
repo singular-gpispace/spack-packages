@@ -11,7 +11,7 @@ class PfdParallel(CMakePackage):
 
     homepage = "https://github.com/singular-gpispace/pfd-parallel"
     url      = "https://github.com/singular-gpispace/pfd-parallel/archive/refs/tags/v0.02.tar.gz"
-    git      = "git@github.com:singular-gpispace/pfd-parallel"
+    git      = "https://github.com/singular-gpispace/pfd-parallel"
 
     maintainers = ['MHeymann', 'jankoboehm', 'lristau', 'mrahn']
 
