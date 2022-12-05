@@ -22,10 +22,10 @@ git clone https://github.com/spack/spack.git $software_ROOT/spack
 
 ```
 
-For the most predictable experience, check out verison v0.17 of spack:
+For the most predictable experience, you can check out a specific version of spack, say v0.19.0:
 ```bash
 cd $software_ROOT/spack
-git checkout v0.17
+git checkout v0.19.0
 cd -
 
 ```

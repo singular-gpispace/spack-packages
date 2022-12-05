@@ -6,12 +6,11 @@
 from spack import *
 
 
-class PfdParallel(CMakePackage):
+class Framework(CMakePackage):
     """FIXME: Put a proper description of your package here."""
 
-    homepage = "https://github.com/singular-gpispace/pfd-parallel"
-    url      = "https://github.com/singular-gpispace/pfd-parallel/archive/refs/tags/v0.02.tar.gz"
-    git      = "https://github.com/singular-gpispace/pfd-parallel"
+    homepage = "https://github.com/singular-gpispace/framework"
+    git      = "https://github.com/singular-gpispace/framework"
 
     maintainers = ['MHeymann', 'jankoboehm', 'lristau', 'mrahn']
 
@@ -19,19 +18,15 @@ class PfdParallel(CMakePackage):
 
     depends_on('singular@snapshot_22_03')
     depends_on('gpi-space@22.03:')
-    depends_on('flint@2.6.3:')
 
     def cmake_args(self):
         spec = self.spec
         print(self.spec)
         args = [ self.define("GSPC_HOME", spec['gpi-space'].prefix)
                , self.define("SINGULAR_HOME", spec['singular'].prefix)
-               , self.define("FLINT_HOME", spec['flint'].prefix)
                ]
         return args
 
     def setup_run_environment(self, env):
         spec = self.spec
-        env.set('SINGULAR_INSTALL_DIR', spec['singular'].prefix)
-        env.set('PFD_INSTALL_DIR', self.prefix)
-
+        env.set('SINGULARPATH', self.prefix)
