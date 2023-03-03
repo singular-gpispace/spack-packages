@@ -27,10 +27,17 @@ class _4ti2(AutotoolsPackage):
     """FIXME: Put a proper description of your package here."""
 
     # FIXME: Add a proper url for your package's homepage here.
-    homepage = "https://www.4ti2.de"
-    url      = "http://www.4ti2.de/version_1.6/4ti2-1.6.tar.gz"
+    homepage = "https://4ti2.github.io"
+    url      = "https://4ti2.github.io/version_1.6/4ti2-1.6.tar.gz"
+    git      = "https://github.com/4ti2/4ti2.git"
 
     # maintainers = ['github_user1', 'github_user2']
 
+    version('1.6.9', branch='master')
     version('1.6', sha256='5edd106a3584408d89c58cb432f8b08eec472aa3277a35928523cdb4e43c769e')
+
+
+    depends_on("autoconf", type="build", when="@1.6.9 build_system=autotools")
+    depends_on("automake", type="build", when="@1.6.9 build_system=autotools")
+    depends_on("libtool", type="build", when="@1.6.9 build_system=autotools")
 
