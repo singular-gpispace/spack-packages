@@ -5,6 +5,11 @@
 
 from spack import *
 
+import os
+import subprocess
+
+valuep = os.environ["install_ROOT"]
+
 class Neatibp(Package):
 
     homepage = "https://github.com/yzhphy/NeatIBP/"
@@ -16,6 +21,7 @@ class Neatibp(Package):
 
     depends_on('git@2.38.1')
     depends_on('spasm@1.2')
+
     depends_on('singular@snapshot_22_03')
 
     def install(self, spec, prefix):
@@ -23,8 +29,8 @@ class Neatibp(Package):
             git = which('git')
             git('clone', self.git)
         with working_dir("Spack_scripts"):
-            copy = Executable("./spack_script_cp.sh")
-            copy()
+            #valuep = os.environ["SPACK_INSTALL_ROOT"]
+            p = subprocess.run(['cp', 'spack_sub_script.sh', valuep])
 
 
     def setup_run_environment(self, env):
