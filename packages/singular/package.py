@@ -29,6 +29,8 @@ class Singular(AutotoolsPackage):
     depends_on('m4',       type='build')
 
     depends_on('readline@8.1:')
+    depends_on('mpfr')  # Could also be built against mpir
+
     depends_on('ntl@11.5.1: +shared')
     depends_on('flint@2.6.3:')
     depends_on('cddlib@0.94m')
