@@ -36,6 +36,9 @@ class Singular(AutotoolsPackage):
     depends_on('cddlib@0.94m')
     depends_on('4ti2@1.6')
 
+    def setup_build_environment(self, env):
+    env.remove_path('LD_LIBRARY_PATH', '/usr/lib64')
+
     def autoreconf(self, spec, prefix):
         autogen_script = Executable("./autogen.sh")
         autogen_script()
