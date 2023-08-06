@@ -49,4 +49,6 @@ class Singular(AutotoolsPackage):
                , '--with-ntl={0}'.format(spec['ntl'].prefix)
                , '--enable-gfanlib'
                ]
+        mpfr_prefix = self.spec['mpfr'].prefix
+        args.append('--with-mpfr={0}'.format(mpfr_prefix))
         return args
