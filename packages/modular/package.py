@@ -17,7 +17,7 @@ class Modular(CMakePackage):
     version('latest', branch='main')
 
     depends_on('singular@snapshot_22_03')
-    depends_on('gpi-space@23.06:')
+    depends_on('gpi-space@22.06:')
     depends_on('flint@2.6.3:')
 
     def cmake_args(self):
