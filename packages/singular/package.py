@@ -18,8 +18,9 @@ class Singular(AutotoolsPackage):
     url      = "https://github.com/Singular/Singular/archive/refs/tags/Release-4-3-0.tar.gz"
     git      = "https://github.com/Singular/Singular.git"
 
-    maintainers = ['hannes14', 'MHeymann']
+    maintainers = ['hannes14', 'jankoboehm', 'MHeymann']
 
+    version('latest', branch='spielwiese')
     version('snapshot_22_03', commit='e12a8af3d7330a34cb43811e28ecde25afe83a4f')
     version('4-3-0', sha256='9189ef41e91317f4de2b4e5d83ae257a26a0bd009a2a4a133b4477212a1f6fd2')
 
