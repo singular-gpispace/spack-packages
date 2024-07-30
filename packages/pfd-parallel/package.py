@@ -17,6 +17,9 @@ class PfdParallel(CMakePackage):
 
     version('latest', branch='main')
 
+    version('v0.1.0', commit='3ddf9dd17ed6906be4bef4590a0db541a1a77bb0')
+    version('v0.2.0', commit='6eb0ae24d7eda817a61ecd3d872b201bececdda8')
+
     depends_on('singular@snapshot_22_03')
     depends_on('gpi-space@22.03:')
     depends_on('flint@2.6.3:')
