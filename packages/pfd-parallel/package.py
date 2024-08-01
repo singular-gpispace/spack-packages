@@ -23,7 +23,12 @@ class PfdParallel(CMakePackage):
     
 
     depends_on('singular@snapshot_22_03')
-    depends_on('gpi-space@22.03:')
+
+    depends_on('gpi-space@22.03:', when='@v0.1.0')
+    depends_on('gpi-space@22.03:', when='@v0.2.0')
+    depends_on('gpi-space@23.06', when='@v0.3.0')
+    depends_on('gpi-space@main', when='@latest')
+    
     depends_on('flint@2.6.3:')
 
     def cmake_args(self):
