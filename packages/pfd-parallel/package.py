@@ -26,8 +26,8 @@ class PfdParallel(CMakePackage):
 
     depends_on('gpi-space@22.03:', when='@v0.1.0')
     depends_on('gpi-space@22.03:', when='@v0.2.0')
-    depends_on('gpi-space@23.06', when='@v0.3.0')
-    depends_on('gpi-space@latest', when='@latest')
+    depends_on('gpi-space@22.03', when='@v0.3.0')
+    depends_on('gpi-space@23.06', when='@latest')
     
     depends_on('flint@2.6.3:')
 
