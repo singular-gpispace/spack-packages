@@ -10,7 +10,7 @@ class PfdParallel(CMakePackage):
     """FIXME: Put a proper description of your package here."""
 
     homepage = "https://github.com/singular-gpispace/pfd-parallel"
-    url      = "https://github.com/singular-gpispace/pfd-parallel/archive/refs/tags/v0.02.tar.gz"
+    url      = "https://github.com/singular-gpispace/pfd-parallel/archive/refs/tags/v0.3.0.tar.gz"
     git      = "https://github.com/singular-gpispace/pfd-parallel"
 
     maintainers = ['jankoboehm', 'lristau', 'MHeymann', 'mrahn']
