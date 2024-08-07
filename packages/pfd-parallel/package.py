@@ -26,8 +26,8 @@ class PfdParallel(CMakePackage):
 
     depends_on('singular@snapshot_22_03')
 
-    depends_on('gpi-space@22.03:', when='@v0.1.0')
-    depends_on('gpi-space@22.03:', when='@v0.2.0')
+    depends_on('gpi-space@22.03', when='@v0.1.0')
+    depends_on('gpi-space@22.03', when='@v0.2.0')
     depends_on('gpi-space@22.03', when='@v0.3.0')
     depends_on('gpi-space@22.03', when='@v0.4.0')
     depends_on('gpi-space@23.06', when='@latest')
