@@ -12,7 +12,7 @@ class Modular(CMakePackage):
     homepage = "https://github.com/singular-gpispace/modular_res"
     git      = "https://github.com/singular-gpispace/modular_res"
 
-    maintainers = ['hobihsina','jankoboehm','Santosh']
+    maintainers = ['hobihsina','jankoboehm']
 
     version('latest', branch='main')
 
