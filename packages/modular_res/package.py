@@ -6,7 +6,7 @@
 from spack import *
 
 
-class Modular(CMakePackage):
+class ModularRes(CMakePackage):
     """FIXME: Put a proper description of your package here."""
 
     homepage = "https://github.com/singular-gpispace/modular_res"
