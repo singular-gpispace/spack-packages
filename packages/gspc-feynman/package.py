@@ -6,7 +6,7 @@
 from spack import *
 
 
-class ModularRes(CMakePackage):
+class GspcFeynman(CMakePackage):
     """FIXME: Put a proper description of your package here."""
 
     homepage = "https://github.com/singular-gpispace/gspc-feynman"
@@ -32,5 +32,5 @@ class ModularRes(CMakePackage):
     def setup_run_environment(self, env):
         spec = self.spec
         env.set('SINGULAR_INSTALL_DIR', spec['singular'].prefix)
-        env.set('MODULAR_INSTALL_DIR', self.prefix)
+        env.set('GSPC_FEYNMAN_INSTALL_DIR', self.prefix)
 
