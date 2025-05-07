@@ -13,12 +13,8 @@ class GspcRes(CMakePackage):
     version('latest', branch='main')
 
 
-    depends_on('singular@4.4.0')
-    depends_on('singular@snapshot_22_03')
-    depends_on('gpi-space@22.06:24.12')
-
-  
-
+    depends_on('singular@4.4.0p2')
+    depends_on('gpi-space@24.12:')
     depends_on('flint@2.6.3:')
 
     def cmake_args(self):
