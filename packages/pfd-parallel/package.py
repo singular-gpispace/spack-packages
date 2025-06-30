@@ -10,12 +10,12 @@ class PfdParallel(CMakePackage):
     """FIXME: Put a proper description of your package here."""
 
     homepage = "https://github.com/singular-gpispace/pfd-parallel"
-    url      = "https://github.com/singular-gpispace/pfd-parallel/archive/refs/tags/v0.3.0.tar.gz"
+    url      = "https://github.com/singular-gpispace/pfd-parallel/archive/refs/tags/v0.4.1.tar.gz"
     git      = "https://github.com/singular-gpispace/pfd-parallel"
 
     maintainers = ['jankoboehm', 'lristau', 'MHeymann', 'mrahn']
 
-    
+    version('v0.4.1', commit='926b61214297f69776a90bbd3ffb2f687881447c')
     version('v0.4.0', commit='44827beec023719bd654e8cb5fd3e1c921ec3706')
     version('v0.3.0', commit='518995cc8b3d6ee0eddeca000afc08408a877e83')
     version('v0.2.0', commit='6eb0ae24d7eda817a61ecd3d872b201bececdda8')
@@ -30,6 +30,7 @@ class PfdParallel(CMakePackage):
     depends_on('gpi-space@22.03', when='@v0.2.0')
     depends_on('gpi-space@22.03', when='@v0.3.0')
     depends_on('gpi-space@22.03', when='@v0.4.0')
+    depends_on('gpi-space@24.12', when='@v0.4.1')
     depends_on('gpi-space@23.06', when='@latest')
     
     depends_on('flint@2.6.3:')
