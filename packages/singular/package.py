@@ -84,6 +84,7 @@ class Singular(AutotoolsPackage):
         spec = self.spec
         args = [ '--with-flint={0}'.format(spec['flint'].prefix)
                , '--with-ntl={0}'.format(spec['ntl'].prefix)
+               , '--disable-maintainer-mode'
                , '--enable-gfanlib'
                ]
         return args

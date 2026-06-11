@@ -25,7 +25,10 @@ class Flint(Package):
     #         description='Compile with the MPIR library')
 
     # Build dependencies
+    depends_on('c', type='build')
+    depends_on('cxx', type='build')
     depends_on('autoconf', type='build')
+    depends_on('gmake', type='build')
 
     # Other dependencies
     depends_on('gmp')   # mpir is a drop-in replacement for this
