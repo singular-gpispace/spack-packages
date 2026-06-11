@@ -41,3 +41,12 @@ class _4ti2(AutotoolsPackage):
     depends_on("autoconf", type="build", when="@develop build_system=autotools")
     depends_on("automake", type="build", when="@develop build_system=autotools")
     depends_on("libtool", type="build", when="@develop build_system=autotools")
+
+    def patch(self):
+        if self.spec.satisfies("@1.6"):
+            filter_file(
+                "#include <iostream>",
+                "#include <iostream>\n#include <fstream>",
+                "src/zsolve/VectorArray.hpp",
+                string=True,
+            )
