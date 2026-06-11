@@ -33,11 +33,11 @@ class _4ti2(AutotoolsPackage):
 
     # maintainers = ['github_user1', 'github_user2']
 
-    version('1.6.9', branch='master')
+    version('develop', branch='master')
     version('1.6', sha256='5edd106a3584408d89c58cb432f8b08eec472aa3277a35928523cdb4e43c769e')
 
-
-    depends_on("autoconf", type="build", when="@1.6.9 build_system=autotools")
-    depends_on("automake", type="build", when="@1.6.9 build_system=autotools")
-    depends_on("libtool", type="build", when="@1.6.9 build_system=autotools")
-
+    depends_on("c", type="build")
+    depends_on("cxx", type="build")
+    depends_on("autoconf", type="build", when="@develop build_system=autotools")
+    depends_on("automake", type="build", when="@develop build_system=autotools")
+    depends_on("libtool", type="build", when="@develop build_system=autotools")
