@@ -1,0 +1,27 @@
+diff --git a/src/logging/scoped_log_backtrace_and_exit_for_critical_errors.cpp b/src/logging/scoped_log_backtrace_and_exit_for_critical_errors.cpp
+index 1fd0c44..76ac586 100644
+--- a/src/logging/scoped_log_backtrace_and_exit_for_critical_errors.cpp
++++ b/src/logging/scoped_log_backtrace_and_exit_for_critical_errors.cpp
+@@ -27,16 +27,21 @@ namespace gspc::util
+       )
+     {
++#if defined(__APPLE__) && defined(__x86_64__)
++      auto* mcontext (static_cast<ucontext_t*> (context)->uc_mcontext);
++      unsigned long caller_address (mcontext->__ss.__rip);
++#else
+       auto* mcontext (reinterpret_cast<sigcontext*> (
+                               &(static_cast<ucontext_t*> (context)->uc_mcontext)
+                            ));
+
+ #if __WORDSIZE == 32
+       unsigned long caller_address (mcontext->eip);
+ #else
+ #if __WORDSIZE == 64
+       unsigned long caller_address (mcontext->rip);
+ #else
+ #error Unable to get caller_address on this architecture.
+ #endif
+ #endif
++#endif
+
+       std::ostringstream log_message;

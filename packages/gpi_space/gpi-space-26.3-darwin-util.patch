@@ -1,0 +1,288 @@
+diff --git a/include/gspc/util/dynamic_linking.hpp b/include/gspc/util/dynamic_linking.hpp
+index 1be76b0..2cead19 100644
+--- a/include/gspc/util/dynamic_linking.hpp
++++ b/include/gspc/util/dynamic_linking.hpp
+@@ -7,6 +7,10 @@
+ #include <string>
+ #include <vector>
+
++#ifndef RTLD_DEEPBIND
++#define RTLD_DEEPBIND 0
++#endif
++
+
+   namespace gspc::util
+   {
+diff --git a/include/gspc/util/sig_err.hpp b/include/gspc/util/sig_err.hpp
+index c283426..212e17c 100644
+--- a/include/gspc/util/sig_err.hpp
++++ b/include/gspc/util/sig_err.hpp
+@@ -3,6 +3,12 @@
+ #include <csignal>
+
+
++#if defined(__APPLE__) && !defined(GSPC_UTIL_SIGHANDLER_T_DEFINED)
++#define GSPC_UTIL_SIGHANDLER_T_DEFINED
++using sighandler_t = void (*) (int);
++#endif
++
++
+   namespace gspc::util
+   {
+     sighandler_t sig_err();
+diff --git a/include/gspc/util/syscall.hpp b/include/gspc/util/syscall.hpp
+index 1b85d9f..b651268 100644
+--- a/include/gspc/util/syscall.hpp
++++ b/include/gspc/util/syscall.hpp
+@@ -17,6 +17,27 @@
+ #include <unistd.h>
+
+
++#if defined(__APPLE__) && !defined(GSPC_UTIL_SIGHANDLER_T_DEFINED)
++#define GSPC_UTIL_SIGHANDLER_T_DEFINED
++using sighandler_t = void (*) (int);
++#endif
++
++#if defined(__APPLE__)
++# ifdef sigaddset
++#  undef sigaddset
++# endif
++# ifdef sigemptyset
++#  undef sigemptyset
++# endif
++# ifdef sigtimedwait
++#  undef sigtimedwait
++# endif
++# ifdef sigwaitinfo
++#  undef sigwaitinfo
++# endif
++#endif
++
++
+
+     namespace gspc::util::syscall
+     {
+diff --git a/src/util/dynamic_linking.cpp b/src/util/dynamic_linking.cpp
+index c3aa560..c8f2ec4 100644
+--- a/src/util/dynamic_linking.cpp
++++ b/src/util/dynamic_linking.cpp
+@@ -2,7 +2,11 @@
+
+ #include <utility>
+
++#if defined(__APPLE__)
++#include <mach-o/dyld.h>
++#else
+ #include <link.h>
++#endif
+
+
+   namespace gspc::util
+@@ -31,6 +35,15 @@
+     {
+       std::vector<std::filesystem::path> result;
+-      dl_iterate_phdr
++#if defined(__APPLE__)
++      for (auto i = 0U; i < _dyld_image_count(); ++i)
++      {
++        if (char const* image_name = _dyld_get_image_name (i))
++        {
++          result.emplace_back (image_name);
++        }
++      }
++#else
++      dl_iterate_phdr
+         ( +[] (dl_phdr_info* info, size_t, void* data)
+            {
+              static_cast<std::vector<std::filesystem::path>*> (data)
+@@ -40,6 +54,7 @@
+            }
+         , &result
+         );
++#endif
+       return result;
+     }
+   }
+diff --git a/src/util/executable_path.cpp b/src/util/executable_path.cpp
+index 4c863ba..3c0ee3b 100644
+--- a/src/util/executable_path.cpp
++++ b/src/util/executable_path.cpp
+@@ -3,6 +3,12 @@
+
+ #include <filesystem>
+
++#if defined(__APPLE__)
++#include <mach-o/dyld.h>
++#include <stdexcept>
++#include <vector>
++#endif
++
+
+   namespace gspc::util
+   {
+@@ -11,6 +17,21 @@
+     {
+       //! \todo Other systems. See
+       //! http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
++#if defined(__APPLE__)
++      uint32_t size (1);
++      std::vector<char> buffer (size);
++
++      if (_NSGetExecutablePath (buffer.data(), &size) != 0)
++      {
++        buffer.resize (size);
++        if (_NSGetExecutablePath (buffer.data(), &size) != 0)
++        {
++          throw std::runtime_error ("unable to determine executable_path");
++        }
++      }
++
++      return std::filesystem::canonical (buffer.data());
++#else
+
+       return std::filesystem::canonical ( std::filesystem::path ("/")
+                                         / "proc"
+@@ -18,6 +38,7 @@
+                                         / "exe"
+                                         );
++#endif
+     }
+
+     std::filesystem::path executable_path (void* symbol_in_executable)
+     try
+diff --git a/src/util/hostname.cpp b/src/util/hostname.cpp
+index 9d794c0..cf20cdf 100644
+--- a/src/util/hostname.cpp
++++ b/src/util/hostname.cpp
+@@ -10,6 +10,10 @@
+ #include <stdexcept>
+
+
++#ifndef HOST_NAME_MAX
++#define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
++#endif
++
+   namespace gspc::util
+   {
+     namespace
+diff --git a/src/util/syscall.cpp b/src/util/syscall.cpp
+index b2aa245..1469c1b 100644
+--- a/src/util/syscall.cpp
++++ b/src/util/syscall.cpp
+@@ -6,10 +6,25 @@
+
+ #include <boost/system/system_error.hpp>
+
++#include <cerrno>
+ #include <mutex>
+
+ #include <fcntl.h>
+ #include <signal.h>
++#if defined(__APPLE__)
++# ifdef sigaddset
++#  undef sigaddset
++# endif
++# ifdef sigemptyset
++#  undef sigemptyset
++# endif
++# ifdef sigtimedwait
++#  undef sigtimedwait
++# endif
++# ifdef sigwaitinfo
++#  undef sigwaitinfo
++# endif
++#endif
+ #include <sys/file.h>
+ #include <sys/mman.h>
+ #if FUNCTION_EXISTS_SIGNALFD
+@@ -162,7 +178,11 @@
+
+       void fdatasync (int fd)
+       {
++#if defined(__APPLE__)
++        return negative_one_fails_with_errno<void> (::fsync (fd));
++#else
+         return negative_one_fails_with_errno<void> (::fdatasync (fd));
++#endif
+       }
+
+       char* fgets (char* str, int num, FILE* stream)
+@@ -359,28 +378,40 @@
+
+       void sigaddset (sigset_t* set, int signum)
+       {
++#if defined(__APPLE__)
++        *set |= __sigbits (signum);
++#else
+         return negative_one_fails_with_errno<void>
+           (::sigaddset (set, signum));
++#endif
+       }
+
+       void sigemptyset (sigset_t* set)
+       {
++#if defined(__APPLE__)
++        *set = 0;
++#else
+         return negative_one_fails_with_errno<void>
+           (::sigemptyset (set));
++#endif
+       }
+
+       sighandler_t signal (int signum, sighandler_t handler)
+       {
+         return SIG_ERR_fails_with_errno (::signal (signum, handler));
+       }
+
+-#if FUNCTION_EXISTS_SIGNALFD
+       int signalfd (int fd, sigset_t const* mask, int flags)
+       {
++#if FUNCTION_EXISTS_SIGNALFD
+         return negative_one_fails_with_errno<int>
+           (::signalfd (fd, mask, flags));
+-      }
++#else
++        (void) fd; (void) mask; (void) flags;
++        errno = ENOSYS;
++        return negative_one_fails_with_errno<int> (-1);
+ #endif
++      }
+
+       void sigprocmask (int how, sigset_t const* sig, sigset_t* old)
+       {
+@@ -391,14 +422,35 @@
+       int sigtimedwait
+         (sigset_t const* set, siginfo_t* info, timespec const* timeout)
+       {
++#if defined(__APPLE__)
++        (void) set; (void) info; (void) timeout;
++        errno = ENOSYS;
++        return negative_one_fails_with_errno<int> (-1);
++#else
+         return negative_one_fails_with_errno<int>
+           (::sigtimedwait (set, info, timeout));
++#endif
+       }
+
+       int sigwaitinfo (sigset_t const* set, siginfo_t* info)
+       {
++#if defined(__APPLE__)
++        int signal_number;
++        int const rc = ::sigwait (set, &signal_number);
++        if (rc)
++        {
++          throw ::boost::system::system_error
++            (::boost::system::error_code (rc, ::boost::system::system_category()));
++        }
++        if (info != nullptr)
++        {
++          info->si_signo = signal_number;
++        }
++        return signal_number;
++#else
+         return negative_one_fails_with_errno<int>
+           (::sigwaitinfo (set, info));
++#endif
+       }
+
+       int socket (int domain, int type, int protocol)

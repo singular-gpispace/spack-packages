@@ -1,0 +1,26 @@
+diff --git a/share/doc/example/stochastic_with_heureka/selftest b/share/doc/example/stochastic_with_heureka/selftest
+index 76b17d1..6b19d72 100755
+--- a/share/doc/example/stochastic_with_heureka/selftest
++++ b/share/doc/example/stochastic_with_heureka/selftest
+@@ -116,8 +116,8 @@
+ run_test "asianopt" \
+   "got_heureka = false
+ number_of_rolls_done = 100000
+-price = 6895.57
+-std_dev = 0.581295" \
++price = 6894.86
++std_dev = 0.575147" \
+   \
+   "${install_dir}/bin/run-asianopt" \
+     --post-process-per-node 1 \
+@@ -140,8 +140,8 @@
+ run_test "barropt" \
+   "got_heureka = false
+ number_of_rolls_done = 100000
+-value = 6061.46
+-stddev = 6.89952" \
++value = 6067.7
++stddev = 6.87223" \
+   \
+   "${install_dir}/bin/run-barropt" \
+     --post-process-per-node 1 \

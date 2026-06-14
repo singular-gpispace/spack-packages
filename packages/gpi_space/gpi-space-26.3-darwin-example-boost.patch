@@ -1,0 +1,19 @@
+diff --git a/share/doc/example/stochastic_with_heureka/CMakeLists.txt b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+index 652bd0c..f7cafc2 100644
+--- a/share/doc/example/stochastic_with_heureka/CMakeLists.txt
++++ b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+@@ -36,9 +36,11 @@ include (FetchContent)
+ find_package (GPISpace REQUIRED)
+ _swh_deployment_gpispace()
+
+-find_package (Boost 1.61 REQUIRED
+-  COMPONENTS program_options
+-)
++if (NOT TARGET Boost::program_options)
++  find_package (Boost 1.61 REQUIRED
++    COMPONENTS program_options
++  )
++endif()
+ if (SWH_TEST)
+   find_package (Boost 1.61 QUIET
+     COMPONENTS unit_test_framework

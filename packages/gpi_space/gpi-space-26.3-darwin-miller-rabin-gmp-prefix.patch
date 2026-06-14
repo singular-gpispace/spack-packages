@@ -1,0 +1,52 @@
+diff --git a/share/doc/example/stochastic_with_heureka/implementation/miller-rabin/CMakeLists.txt b/share/doc/example/stochastic_with_heureka/implementation/miller-rabin/CMakeLists.txt
+index 34ab50d..d4f6280 100644
+--- a/share/doc/example/stochastic_with_heureka/implementation/miller-rabin/CMakeLists.txt
++++ b/share/doc/example/stochastic_with_heureka/implementation/miller-rabin/CMakeLists.txt
+@@ -7,22 +7,30 @@ if ("${GMP_PREFIX}" STREQUAL "" AND NOT "$ENV{GMP_PREFIX}" STREQUAL "")
+   set (GMP_PREFIX "$ENV{GMP_PREFIX}")
+ endif()
+
+-find_path (GMP_INCLUDE_DIR gmpxx.h
+-  PATHS ${GMP_PREFIX}/include
+-)
+-find_library (GMP_LIBRARY_gmp NAMES gmp
+-  PATHS ${GMP_PREFIX}/lib
+-)
+-find_library (GMP_LIBRARY_gmpxx NAMES gmpxx
+-  PATHS ${GMP_PREFIX}/lib
+-)
+-
+-if (NOT (GMP_INCLUDE_DIR AND GMP_LIBRARY_gmp AND GMP_LIBRARY_gmpxx))
+-  message (WARNING "Could not find GMP, skipping miller-rabin implementation."
+-    "(GMP_INCLUDE_DIR=${GMP_INCLUDE_DIR}, GMP_LIBRARY_gmp=${GMP_LIBRARY_gmp}, "
+-    "GMP_LIBRARY_gmpxx=${GMP_LIBRARY_gmpxx})"
+-  )
+-  set (BUILD_MILLER_RABIN OFF)
+-endif()
++if ("${GMP_PREFIX}" STREQUAL "")
++  message (WARNING "GMP_PREFIX not set, skipping miller-rabin implementation.")
++  set (BUILD_MILLER_RABIN OFF)
++else()
++  find_path (GMP_INCLUDE_DIR gmpxx.h
++    PATHS ${GMP_PREFIX}/include
++    NO_DEFAULT_PATH
++  )
++  find_library (GMP_LIBRARY_gmp NAMES gmp
++    PATHS ${GMP_PREFIX}/lib
++    NO_DEFAULT_PATH
++  )
++  find_library (GMP_LIBRARY_gmpxx NAMES gmpxx
++    PATHS ${GMP_PREFIX}/lib
++    NO_DEFAULT_PATH
++  )
++
++  if (NOT (GMP_INCLUDE_DIR AND GMP_LIBRARY_gmp AND GMP_LIBRARY_gmpxx))
++    message (WARNING "Could not find GMP, skipping miller-rabin implementation."
++      "(GMP_INCLUDE_DIR=${GMP_INCLUDE_DIR}, GMP_LIBRARY_gmp=${GMP_LIBRARY_gmp}, "
++      "GMP_LIBRARY_gmpxx=${GMP_LIBRARY_gmpxx})"
++    )
++    set (BUILD_MILLER_RABIN OFF)
++  endif()
++endif()
+
+ if (BUILD_MILLER_RABIN)

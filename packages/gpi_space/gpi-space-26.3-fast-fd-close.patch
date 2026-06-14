@@ -1,0 +1,126 @@
+--- a/src/rif/execute_and_get_startup_messages.cpp
++++ b/src/rif/execute_and_get_startup_messages.cpp
+@@ -21,6 +21,10 @@
+ #include <boost/system/system_error.hpp>
+
+ #include <algorithm>
++#include <cerrno>
++#include <climits>
++#include <cstdlib>
++#include <dirent.h>
+ #include <fstream>
+ #include <functional>
+ #include <future>
+@@ -29,6 +33,7 @@
+ #include <sstream>
+ #include <stdexcept>
+ #include <system_error>
++#include <vector>
+
+
+   namespace gspc::rif
+@@ -52,6 +57,87 @@
+         }
+       }
+
++      std::optional<std::vector<int>> file_descriptors_from (char const* path)
++      {
++        DIR* const directory (::opendir (path));
++
++        if (!directory)
++        {
++          return std::nullopt;
++        }
++
++        int const directory_fd (::dirfd (directory));
++
++        std::vector<int> file_descriptors;
++
++        errno = 0;
++        while (dirent const* const entry = ::readdir (directory))
++        {
++          char* end (nullptr);
++          errno = 0;
++
++          long const fd (std::strtol (entry->d_name, &end, 10));
++
++          if ( errno == 0
++            && end != entry->d_name
++            && *end == '\0'
++            && fd >= 0
++            && fd <= INT_MAX
++            && fd != directory_fd
++             )
++          {
++            file_descriptors.emplace_back (static_cast<int> (fd));
++          }
++        }
++
++        int const readdir_errno (errno);
++        ::closedir (directory);
++
++        if (readdir_errno)
++        {
++          return std::nullopt;
++        }
++
++        return file_descriptors;
++      }
++
++      bool close_file_descriptors_from (char const* path, int keep_fd)
++      {
++        if (auto file_descriptors = file_descriptors_from (path))
++        {
++          for (int fd : *file_descriptors)
++          {
++            if (fd != keep_fd)
++            {
++              close_if_open (fd);
++            }
++          }
++
++          return true;
++        }
++
++        return false;
++      }
++
++      void close_file_descriptors_except (int keep_fd)
++      {
++        if ( close_file_descriptors_from ("/proc/self/fd", keep_fd)
++          || close_file_descriptors_from ("/dev/fd", keep_fd)
++           )
++        {
++          return;
++        }
++
++        long const maximum_open_files (gspc::util::syscall::sysconf (_SC_OPEN_MAX));
++        for (int fd (0); fd < maximum_open_files; ++fd)
++        {
++          if (fd != keep_fd)
++          {
++            close_if_open (fd);
++          }
++        }
++      }
++
+       size_t append (std::vector<char>& buffer, std::string const& str, size_t pos)
+       {
+         if (buffer.size() < str.size() + pos)
+@@ -280,15 +366,7 @@
+         std::vector<char> envp_buffer;
+         std::vector<char*> const envp (prepare_envp (envp_buffer, environment));
+
+-        long const maximum_open_files (gspc::util::syscall::sysconf (_SC_OPEN_MAX));
+-        for (int fd (0); fd < maximum_open_files; ++fd)
+-        {
+-          if (fd == pipe_fds[1])
+-          {
+-            continue;
+-          }
+-          close_if_open (fd);
+-        }
++        close_file_descriptors_except (pipe_fds[1]);
+
+         try
+         {

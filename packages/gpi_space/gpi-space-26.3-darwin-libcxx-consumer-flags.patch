@@ -1,0 +1,21 @@
+diff --git a/GPISpaceConfig.cmake.in b/GPISpaceConfig.cmake.in
+index c11cb9d..43a9b5c 100644
+--- a/GPISpaceConfig.cmake.in
++++ b/GPISpaceConfig.cmake.in
+@@ -281,6 +281,16 @@ target_include_directories (GPISpace::header-only SYSTEM
+   INTERFACE "${GSPC_INCLUDE_DIR}"
+ )
+
++if (APPLE)
++  target_compile_definitions (GPISpace::header-only
++    INTERFACE
++      _LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR
++      _LIBCPP_ENABLE_CXX17_REMOVED_BINDERS
++      _LIBCPP_ENABLE_CXX17_REMOVED_RANDOM_SHUFFLE
++      _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION
++  )
++endif()
++
+ # A large percentage of users at some point end up in the context of
+ # dynamically loaded (dlopen-ed + dlclose-ed) modules, in one way or
+ # the other. `dlclose` ends up not unloading libraries with `unique`

@@ -1,0 +1,72 @@
+diff --git a/GPISpaceConfig.cmake.in b/GPISpaceConfig.cmake.in
+index c11cb9d..817d61a 100644
+--- a/GPISpaceConfig.cmake.in
++++ b/GPISpaceConfig.cmake.in
+@@ -158,10 +158,13 @@ get_property (_current_options
+   TARGET Boost::program_options
+   PROPERTY INTERFACE_LINK_OPTIONS
+ )
+-set (_boost_po_link_workaround
+-  "LINKER:--exclude-libs,libboost_program_options.a"
+-)
+-if (NOT _boost_po_link_workaround IN_LIST _current_options)
++set (_boost_po_link_workaround)
++if (NOT APPLE)
++  set (_boost_po_link_workaround
++    "LINKER:--exclude-libs,libboost_program_options.a"
++  )
++endif()
++if (_boost_po_link_workaround AND NOT _boost_po_link_workaround IN_LIST _current_options)
+   set_property (TARGET Boost::program_options APPEND
+     PROPERTY INTERFACE_LINK_OPTIONS ${_boost_po_link_workaround}
+   )
+diff --git a/share/doc/example/stochastic_with_heureka/CMakeLists.txt b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+index 652bd0c..c41a301 100644
+--- a/share/doc/example/stochastic_with_heureka/CMakeLists.txt
++++ b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+@@ -63,13 +63,15 @@ install (FILES interface.hpp DESTINATION include/stochastic_with_heureka)
+ # Avoid building modules that don't unload on dlclose().
+ add_compile_options ($<$<AND:$<COMPILE_LANGUAGE:CXX>,$<STREQUAL:GNU,$<CXX_COMPILER_ID>>>:-fno-gnu-unique>)
+
+-
+-if (   NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+-    OR NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9
+-   )
+-# Don't re-export symbols from libraries linked against.
+-add_link_options (LINKER:--exclude-libs,ALL)
++if (NOT APPLE)
++  if (   NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
++      OR NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9
++     )
++  # Don't re-export symbols from libraries linked against.
++  add_link_options (LINKER:--exclude-libs,ALL)
++  endif()
+ endif()
++
+ # Only export symbols explicitly marked as exported.
+ set (CMAKE_PROPERTIES CXX_VISIBILITY_PRESET hidden)
+ # Don't export inline class member functions.
+diff --git a/share/doc/example/stochastic_with_heureka/deployment/InstallationCanNotBeMovedAndRefersToDependenciesUsingAbsolutePaths.cmake b/share/doc/example/stochastic_with_heureka/deployment/InstallationCanNotBeMovedAndRefersToDependenciesUsingAbsolutePaths.cmake
+index 62ecbf7..6d9e0e7 100644
+--- a/share/doc/example/stochastic_with_heureka/deployment/InstallationCanNotBeMovedAndRefersToDependenciesUsingAbsolutePaths.cmake
++++ b/share/doc/example/stochastic_with_heureka/deployment/InstallationCanNotBeMovedAndRefersToDependenciesUsingAbsolutePaths.cmake
+@@ -19,4 +19,6 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
+ set (CMAKE_CXX_USE_IMPLICIT_LINK_DIRECTORIES_IN_RUNTIME_PATH true)
+
+ # Use RPATH instead of RUNPATH to avoid LD_LIBRARY_PATH overrides.
+-add_link_options (LINKER:--disable-new-dtags)
++if (NOT APPLE)
++  add_link_options (LINKER:--disable-new-dtags)
++endif()
+diff --git a/share/doc/example/stochastic_with_heureka/deployment/LocationAndHostIndependentBundle.cmake b/share/doc/example/stochastic_with_heureka/deployment/LocationAndHostIndependentBundle.cmake
+index ad9d212..9a5ab21 100644
+--- a/share/doc/example/stochastic_with_heureka/deployment/LocationAndHostIndependentBundle.cmake
++++ b/share/doc/example/stochastic_with_heureka/deployment/LocationAndHostIndependentBundle.cmake
+@@ -87,4 +87,6 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH false)
+ set (CMAKE_CXX_USE_IMPLICIT_LINK_DIRECTORIES_IN_RUNTIME_PATH false)
+
+ # Use RPATH instead of RUNPATH to avoid LD_LIBRARY_PATH overrides.
+-add_link_options (LINKER:--disable-new-dtags)
++if (NOT APPLE)
++  add_link_options (LINKER:--disable-new-dtags)
++endif()

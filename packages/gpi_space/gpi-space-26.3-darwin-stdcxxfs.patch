@@ -1,0 +1,40 @@
+diff --git a/GPISpaceConfig.cmake.in b/GPISpaceConfig.cmake.in
+index c11cb9d..4e880ef 100644
+--- a/GPISpaceConfig.cmake.in
++++ b/GPISpaceConfig.cmake.in
+@@ -343,7 +343,7 @@ set_target_properties (GPISpace::pnetc PROPERTIES
+   IMPORTED_LOCATION "${GSPC_pnetc_BINARY}"
+ )
+
+-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
++if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+     set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -lstdc++fs")
+   endif()
+diff --git a/share/doc/example/stochastic_with_heureka/CMakeLists.txt b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+index 652bd0c..3a430ec 100644
+--- a/share/doc/example/stochastic_with_heureka/CMakeLists.txt
++++ b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+@@ -143,6 +143,13 @@ add_custom_target (stochastic_with_heureka-pnet
+   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/stochastic_with_heureka.pnet
+ )
+
++set (stochastic_with_heureka_pnetc_gen_ldflags)
++if (NOT APPLE)
++  list (APPEND stochastic_with_heureka_pnetc_gen_ldflags
++    --gen-ldflags=-lstdc++fs
++  )
++endif()
++
+ add_custom_command (
+   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/gen/pnetc/op/libstochastic_with_heureka.so
+   COMMAND GPISpace::pnetc
+@@ -150,7 +157,7 @@ add_custom_command (
+           --gen-cxxflags=-I${PROJECT_SOURCE_DIR}
+           --gen-cxxflags=-I${BOOST_ROOT}/include
+           --gen-ldflags=-L${BOOST_ROOT}/lib
+-          --gen-ldflags=-lstdc++fs
++          ${stochastic_with_heureka_pnetc_gen_ldflags}
+           --force-overwrite-file=true
+           --input=${workflow_description}
+           --output=/dev/null

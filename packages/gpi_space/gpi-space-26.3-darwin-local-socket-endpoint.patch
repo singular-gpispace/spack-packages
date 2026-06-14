@@ -1,0 +1,110 @@
+diff --git a/include/gspc/rpc/detail/service_stream_provider.ipp b/include/gspc/rpc/detail/service_stream_provider.ipp
+index 98b7b98..d200dc2 100644
+--- a/include/gspc/rpc/detail/service_stream_provider.ipp
++++ b/include/gspc/rpc/detail/service_stream_provider.ipp
+@@ -8,20 +8,87 @@
+ #include <gspc/util/scoped_boost_asio_io_service_with_threads.hpp>
+
+ #include <boost/asio/read.hpp>
++#ifdef __APPLE__
++#include <boost/asio/local/stream_protocol.hpp>
++#endif
+ #include <boost/asio/spawn.hpp>
+ #include <boost/asio/use_future.hpp>
+ #include <boost/asio/write.hpp>
+ #include <boost/iostreams/device/array.hpp>
+ #include <boost/iostreams/stream.hpp>
+
++#ifdef __APPLE__
++#include <atomic>
++#endif
+ #include <exception>
+ #include <memory>
++#ifdef __APPLE__
++#include <string>
++#endif
+ #include <utility>
++#ifdef __APPLE__
++#include <unistd.h>
++#endif
+
+
+
+     namespace gspc::rpc::detail
+     {
++#ifdef __APPLE__
++      inline constexpr char generated_socket_path_prefix[]
++        = "/tmp/gspc-rpc-";
++
++      inline ::boost::asio::local::stream_protocol::endpoint
++        stream_provider_endpoint
++          (::boost::asio::local::stream_protocol::endpoint endpoint)
++      {
++        if (endpoint.path().empty())
++        {
++          static std::atomic<unsigned long> counter {0};
++
++          std::string const path
++            ( std::string (generated_socket_path_prefix)
++            + std::to_string (::getpid())
++            + "-"
++            + std::to_string (counter++)
++            + ".sock"
++            );
++
++          ::unlink (path.c_str());
++
++          return ::boost::asio::local::stream_protocol::endpoint (path);
++        }
++
++        return endpoint;
++      }
++#endif
++
++      template<typename Endpoint>
++        Endpoint stream_provider_endpoint (Endpoint endpoint)
++      {
++        return endpoint;
++      }
++
++#ifdef __APPLE__
++      inline void cleanup_stream_provider_endpoint
++        (::boost::asio::local::stream_protocol::endpoint const& endpoint)
++      {
++        std::string const path (endpoint.path());
++
++        if (path.compare ( 0
++                         , sizeof (generated_socket_path_prefix) - 1
++                         , generated_socket_path_prefix
++                         ) == 0)
++        {
++          ::unlink (path.c_str());
++        }
++      }
++#endif
++
++      template<typename Endpoint>
++        void cleanup_stream_provider_endpoint (Endpoint const&)
++      {}
++
+       template<typename Protocol, typename Traits>
+         service_stream_provider_with_deferred_start<Protocol, Traits>
+         ::service_stream_provider_with_deferred_start
+@@ -62,7 +129,7 @@
+         , _shutdown_prevention_guard()
+         , _in_progress_dispatches (0)
+         , _do_accept (true)
+-        , _acceptor (_io_service, decltype (endpoint) (endpoint))
++        , _acceptor (_io_service, stream_provider_endpoint (endpoint))
+         , _local_endpoint (_acceptor.local_endpoint())
+       {}
+
+@@ -128,6 +195,8 @@
+
+         _acceptor.close();
+
++        cleanup_stream_provider_endpoint (_local_endpoint);
++
+         //! \note We do not care for the result or what state the
+         //! socket is in as we only wanted to trigger an accept.
+         socket.close();

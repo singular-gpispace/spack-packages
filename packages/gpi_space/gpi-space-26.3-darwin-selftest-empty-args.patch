@@ -1,0 +1,16 @@
+diff --git a/share/doc/example/stochastic_with_heureka/selftest b/share/doc/example/stochastic_with_heureka/selftest
+index 2c31ab5..bc09141 100755
+--- a/share/doc/example/stochastic_with_heureka/selftest
++++ b/share/doc/example/stochastic_with_heureka/selftest
+@@ -74,7 +74,10 @@ pop_cleanup
+
+ drts_arguments=(--nodefile "${test_dir}/nodefile")
+ drts_arguments+=(--rif-strategy "${rif_strategy}")
+-drts_arguments+=("${@}")
++if [[ ${#} -ne 0 ]]
++then
++  drts_arguments+=("${@}")
++fi
+
+ function run_test_do_check() {
+   local name="${1}"

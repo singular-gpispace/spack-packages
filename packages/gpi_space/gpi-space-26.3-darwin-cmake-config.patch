@@ -1,0 +1,133 @@
+diff --git a/GPISpaceConfig.cmake.in b/GPISpaceConfig.cmake.in
+index c11cb9d..e3d7d51 100644
+--- a/GPISpaceConfig.cmake.in
++++ b/GPISpaceConfig.cmake.in
+@@ -38,20 +38,21 @@ include (CMakeFindDependencyMacro)
+ set_and_check (GSPC_HOME "@PACKAGE_GSPC_HOME@")
+ get_filename_component (GSPC_HOME "${GSPC_HOME}" REALPATH)
+ set (GSPC_LIBRARY_INSTALL_DIR "@CMAKE_INSTALL_LIBDIR@")
++set (GSPC_SHARED_LIBRARY_SUFFIX "@CMAKE_SHARED_LIBRARY_SUFFIX@")
+
+ # \todo remove the variables and only support the targets?
+ # \todo configure-in names?
+ set_and_check (GSPC_gspc_we_LIBRARY
+-  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_we.so"
++  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_we${GSPC_SHARED_LIBRARY_SUFFIX}"
+ )
+ set_and_check (GSPC_gspc_worker_context_LIBRARY
+-  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_worker_context.so"
++  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_worker_context${GSPC_SHARED_LIBRARY_SUFFIX}"
+ )
+ set_and_check (GSPC_gspc_LIBRARY
+-  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc.so"
++  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc${GSPC_SHARED_LIBRARY_SUFFIX}"
+ )
+ set_and_check (GSPC_api_guard_LIBRARY
+-  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_api_guard.so"
++  "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_api_guard${GSPC_SHARED_LIBRARY_SUFFIX}"
+ )
+ set_and_check (GSPC_pnetc_BINARY "${GSPC_HOME}/bin/pnetc")
+ set_and_check (GSPC_INCLUDE_DIR "${GSPC_HOME}/include")
+@@ -180,7 +181,7 @@ if (NOT TARGET gspc_util)
+ if (NOT TARGET gspc_util)
+   add_library (gspc_util SHARED IMPORTED)
+   set_target_properties (gspc_util PROPERTIES
+-    IMPORTED_LOCATION "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_util.so"
++    IMPORTED_LOCATION "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_util${GSPC_SHARED_LIBRARY_SUFFIX}"
+   )
+   target_include_directories (gspc_util SYSTEM
+     INTERFACE "${GSPC_INCLUDE_DIR}"
+@@ -209,7 +210,7 @@ if (NOT TARGET gspc_rpc)
+   set_target_properties (gspc_rpc
+     PROPERTIES
+       IMPORTED_LOCATION
+-        "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_rpc.so"
++        "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_rpc${GSPC_SHARED_LIBRARY_SUFFIX}"
+   )
+   target_include_directories (gspc_rpc SYSTEM
+     INTERFACE "${GSPC_INCLUDE_DIR}"
+@@ -253,7 +254,7 @@ if (GSPC_WITH_IML)
+   set_target_properties (gspc_iml_client
+     PROPERTIES
+       IMPORTED_LOCATION
+-        "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client.so"
++        "${GSPC_HOME}/${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client${GSPC_SHARED_LIBRARY_SUFFIX}"
+   )
+   target_compile_features (gspc_iml_client
+     INTERFACE cxx_std_17
+@@ -472,22 +473,22 @@ macro (_IML_deploy_make_executables_and_files_lists)
+   foreach (_component ${_arg_COMPONENTS})
+     if ("${_component}" STREQUAL "runtime")
+       list (APPEND _executables
+-        "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client.so"
++        "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client${GSPC_SHARED_LIBRARY_SUFFIX}"
+         "libexec/iml/gspc-iml-gpi-server"
+-        "libexec/iml/libgspc_iml_installation.so"
++        "libexec/iml/libgspc_iml_installation${GSPC_SHARED_LIBRARY_SUFFIX}"
+       )
+     elseif ("${_component}" STREQUAL "bootstrap_exe")
+       list (APPEND _executables
+-        "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client.so"
+-        "libexec/iml/libgspc_iml_installation.so"
++        "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client${GSPC_SHARED_LIBRARY_SUFFIX}"
++        "libexec/iml/libgspc_iml_installation${GSPC_SHARED_LIBRARY_SUFFIX}"
+       )
+     elseif ("${_component}" STREQUAL "devel")
+       list (APPEND _files
+         ${_iml_devel_files_in_installation}
+       )
+       list (APPEND _executables
+-        "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client.so"
+-        "libexec/iml/libgspc_iml_installation.so"
++        "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client${GSPC_SHARED_LIBRARY_SUFFIX}"
++        "libexec/iml/libgspc_iml_installation${GSPC_SHARED_LIBRARY_SUFFIX}"
+       )
+     else()
+       message (FATAL_ERROR
+@@ -503,7 +504,7 @@ macro (_IML_deploy_make_bundled_libraries_list)
+   foreach (_executable ${_executables})
+     get_filename_component (_name "${_executable}" NAME)
+
+-    string (REGEX REPLACE "^lib(.*)\\.so$" "\\1"
++    string (REGEX REPLACE "^lib(.*)\\${GSPC_SHARED_LIBRARY_SUFFIX}$" "\\1"
+       _name "${_name}"
+     )
+
+@@ -860,20 +861,20 @@ macro (_GPISpace_deploy_make_parts_list)
+       list (APPEND _parts "bin/gspc-bootstrap-rifd"
+                           "bin/gspc-rifd"
+                           "bin/gspc-teardown-rifd"
+-                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_api_guard.so"
+-                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_worker_context.so"
+-                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc.so"
+-                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_rpc.so"
+-                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_util.so"
+-                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_we.so"
++                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_api_guard${GSPC_SHARED_LIBRARY_SUFFIX}"
++                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_worker_context${GSPC_SHARED_LIBRARY_SUFFIX}"
++                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc${GSPC_SHARED_LIBRARY_SUFFIX}"
++                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_rpc${GSPC_SHARED_LIBRARY_SUFFIX}"
++                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_util${GSPC_SHARED_LIBRARY_SUFFIX}"
++                          "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_we${GSPC_SHARED_LIBRARY_SUFFIX}"
+                           "libexec/gspc/gspc-agent"
+                           "libexec/gspc/gspc-drts-kernel"
+                           "libexec/gspc/gspc-logging-demultiplexer.exe"
+       )
+       if (@GSPC_WITH_IML@)
+-        list (APPEND _parts "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client.so"
++        list (APPEND _parts "${GSPC_LIBRARY_INSTALL_DIR}/libgspc_iml_client${GSPC_SHARED_LIBRARY_SUFFIX}"
+                             "libexec/iml/gspc-iml-gpi-server"
+-                            "libexec/iml/libgspc_iml_installation.so"
++                            "libexec/iml/libgspc_iml_installation${GSPC_SHARED_LIBRARY_SUFFIX}"
+         )
+         list (APPEND ARG_IML_COMPONENTS "runtime")
+         list (APPEND ARG_IML_COMPONENTS "bootstrap_exe")
+@@ -896,7 +897,7 @@ macro (_GPISpace_deploy_make_bundled_libraries_list)
+   foreach (_part ${_parts})
+     get_filename_component (_name "${_part}" NAME)
+
+-    string (REGEX REPLACE "^lib(.*)\\.so$" "\\1" _name "${_name}")
++    string (REGEX REPLACE "^lib(.*)\\${GSPC_SHARED_LIBRARY_SUFFIX}$" "\\1" _name "${_name}")
+
+     file (READ "${GSPC_HOME}/libexec/bundle/info/${_name}" _info)
+     string (REGEX REPLACE ";" "\\\\;" _info "${_info}")

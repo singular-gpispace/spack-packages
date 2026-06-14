@@ -1,0 +1,27 @@
+diff --git a/include/gspc/xml/parse/util/unique.hpp b/include/gspc/xml/parse/util/unique.hpp
+index 03b847648..1d01eea5e 100644
+--- a/include/gspc/xml/parse/util/unique.hpp
++++ b/include/gspc/xml/parse/util/unique.hpp
+@@ -32,5 +32,22 @@ namespace fhgpnet::util
+
+       public:
++        unique() = default;
++        unique (unique const&) = default;
++        unique (unique&&) = default;
++
++        unique& operator= (unique const& other)
++        {
++          unique tmp (other);
++          _values.swap (tmp._values);
++          return *this;
++        }
++
++        unique& operator= (unique&& other)
++        {
++          _values.swap (other._values);
++          return *this;
++        }
++
+         using value_type = T;
+         using iterator = ::boost::transform_iterator
+           <decltype (&select_mutable), typename decltype (_values)::iterator>;

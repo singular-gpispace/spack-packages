@@ -1,0 +1,26 @@
+diff --git a/share/doc/example/stochastic_with_heureka/stochastic_with_heureka.xpnet b/share/doc/example/stochastic_with_heureka/stochastic_with_heureka.xpnet
+index 18fdcc6..4518dc6 100644
+--- a/share/doc/example/stochastic_with_heureka/stochastic_with_heureka.xpnet
++++ b/share/doc/example/stochastic_with_heureka/stochastic_with_heureka.xpnet
+@@ -126,13 +126,18 @@
+ bool cancelled (false);
+
+ auto const filename
+-  ( std::filesystem::path
+-      ( "/dev/shm/stochastic_with_heureka_"
++  (
++#ifdef __APPLE__
++    std::filesystem::temp_directory_path()
++#else
++    std::filesystem::path {"/dev/shm"}
++#endif
++    / ( "stochastic_with_heureka_"
+       + std::to_string (gspc::util::syscall::getpid())
+       + "_"
+       + std::to_string
+-        ( std::chrono::high_resolution_clock::now().time_since_epoch().count()
+-        )
++          ( std::chrono::high_resolution_clock::now().time_since_epoch().count()
++          )
+       )
+   );

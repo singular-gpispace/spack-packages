@@ -1,0 +1,50 @@
+diff --git a/src/xml/type/function.cpp b/src/xml/type/function.cpp
+index 08532b4..ed5f949 100644
+--- a/src/xml/type/function.cpp
++++ b/src/xml/type/function.cpp
+@@ -984,18 +984,34 @@ namespace xml
+         stream << "CXXFLAGS += -fPIC"                              << std::endl;
+         stream << "ifeq '' '$(findstring clang,$(CXX))'"           << std::endl;
+         stream << "  CXXFLAGS += -fno-gnu-unique"                  << std::endl;
+         stream << "endif"                                          << std::endl;
+         stream << "CXXFLAGS += --std=c++17"                        << std::endl;
++#ifdef __APPLE__
++        stream << "CXXFLAGS += -D_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR"
++                                                                   << std::endl;
++        stream << "CXXFLAGS += -D_LIBCPP_ENABLE_CXX17_REMOVED_BINDERS"
++                                                                   << std::endl;
++        stream << "CXXFLAGS += -D_LIBCPP_ENABLE_CXX17_REMOVED_RANDOM_SHUFFLE"
++                                                                   << std::endl;
++        stream << "CXXFLAGS += -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION"
++                                                                   << std::endl;
++#endif
+         stream                                                     << std::endl;
+         stream << "CXXFLAGS += -I."                                << std::endl;
+         stream << "CXXFLAGS += -isystem "
+                << installation.include()                           << std::endl;
++#ifdef __APPLE__
++        stream << "CXXFLAGS += -I"
++#else
+         stream << "CXXFLAGS += -isystem "
++#endif
+                << (installation.boost_root() / "include")          << std::endl;
+         stream << "LDFLAGS += -L "
+                << (installation.boost_root() / "lib")              << std::endl;
++#ifndef __APPLE__
+         stream << "LDFLAGS += -Wl,-rpath-link="
+                << (installation.boost_root() / "lib")              << std::endl;
++#endif
+         stream                                                     << std::endl;
+         stream << "LDFLAGS += -L " << installation.lib()           << std::endl;
+         stream                                                     << std::endl;
+@@ -1197,6 +1213,9 @@ namespace xml
+                    << " -o $@"
+                    << " $(" << ldflags << ")"
+                    << " $(LDFLAGS)"
+                    << " -lgspc_we"
++#ifdef __APPLE__
++                   << " -lgspc_api_guard"
++#endif
+                    << " -lgspc_util"                       << std::endl;
+             stream                                                 << std::endl;
+           }

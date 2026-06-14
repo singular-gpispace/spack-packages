@@ -1,0 +1,59 @@
+diff --git a/cmake/FindHWLOC.cmake b/cmake/FindHWLOC.cmake
+index 53ec0b0..35a5fc3 100644
+--- a/cmake/FindHWLOC.cmake
++++ b/cmake/FindHWLOC.cmake
+@@ -18,6 +18,21 @@ include (detail/pkgconfig_helper)
+
+ _pkgconfig_find_library_module (${_pkgname} ${_libnamespace} ${_libname})
+
++if (APPLE AND TARGET ${_libnamespace}-${_libname})
++  find_library (_HWLOC_COREFOUNDATION_FRAMEWORK CoreFoundation)
++  find_library (_HWLOC_IOKIT_FRAMEWORK IOKit)
++
++  if (NOT _HWLOC_COREFOUNDATION_FRAMEWORK OR NOT _HWLOC_IOKIT_FRAMEWORK)
++    message (FATAL_ERROR "Could not find frameworks required by hwloc on Darwin")
++  endif()
++
++  target_link_libraries (${_libnamespace}-${_libname}
++    INTERFACE
++      ${_HWLOC_COREFOUNDATION_FRAMEWORK}
++      ${_HWLOC_IOKIT_FRAMEWORK}
++  )
++endif()
++
+
+
+
+diff --git a/src/drts/private/startup_and_shutdown.cpp b/src/drts/private/startup_and_shutdown.cpp
+index 6c6f12e..b8c4bf0 100644
+--- a/src/drts/private/startup_and_shutdown.cpp
++++ b/src/drts/private/startup_and_shutdown.cpp
+@@ -29,6 +29,10 @@
+
+ #include <boost/serialization/unordered_map.hpp>
+
++#if defined (__APPLE__)
++#include <crt_externs.h>
++#endif
++
+ #include <filesystem>
+ #include <optional>
+ #include <boost/utility/in_place_factory.hpp>
+@@ -355,10 +359,16 @@ namespace fhg
+
+             if (worker_env_copy_current)
+             {
++#if defined (__APPLE__)
++              auto current_environment (*_NSGetEnviron());
++#else
++              auto current_environment (environ);
++#endif
++
+-              for (auto env (environ); *env; ++env)
++              for (auto env (current_environment); *env; ++env)
+               {
+                 parse_and_add_definition (*env);
+               }
+             }
+
+             for (auto const& file : worker_env_copy_file)
