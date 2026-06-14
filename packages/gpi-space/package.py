@@ -122,6 +122,13 @@ class GpiSpace(CMakePackage):
     patch("gpi-space-26.3-darwin-miller-rabin-gmp-prefix.patch", when="@26.3 platform=darwin")
 
     def patch(self):
+        if self.spec.satisfies("@26.3:"):
+            filter_file(
+                r"^ *add_subdirectory \(qt\)$",
+                "if (GSPC_WITH_MONITOR_APP)\n  add_subdirectory (qt)\nendif()",
+                "src/util/CMakeLists.txt",
+            )
+
         if self.spec.satisfies("platform=darwin"):
             filter_file(r"find_package \(LibRT REQUIRED\)", "", "CMakeLists.txt")
             filter_file(
@@ -130,11 +137,6 @@ class GpiSpace(CMakePackage):
                 "CMakeLists.txt",
             )
             filter_file(r"^    rt$", "", "src/util/CMakeLists.txt")
-            filter_file(
-                r"add_subdirectory \(qt\)",
-                "if (GSPC_WITH_MONITOR_APP)\n  add_subdirectory (qt)\nendif()",
-                "src/util/CMakeLists.txt",
-            )
             filter_file(
                 r'if \(CMAKE_CXX_COMPILER_ID STREQUAL "Clang"\)',
                 'if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")',

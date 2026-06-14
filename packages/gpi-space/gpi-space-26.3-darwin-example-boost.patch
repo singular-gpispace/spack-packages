@@ -1,0 +1,43 @@
+diff --git a/share/doc/example/stochastic_with_heureka/CMakeLists.txt b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+index 652bd0c..8a230b5 100644
+--- a/share/doc/example/stochastic_with_heureka/CMakeLists.txt
++++ b/share/doc/example/stochastic_with_heureka/CMakeLists.txt
+@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.16)
+ project (stochastic_with_heureka VERSION 1 LANGUAGES CXX)
+ set (CMAKE_CXX_STANDARD 17)
+ set (CMAKE_CXX_STANDARD_REQUIRED ON)
++set (CMAKE_NO_SYSTEM_FROM_IMPORTED ON)
+ 
+ set (SWH_DEPLOYMENT_STRATEGIES
+   # The installed application can neither be moved to a different
+@@ -36,9 +36,11 @@ include (FetchContent)
+ find_package (GPISpace REQUIRED)
+ _swh_deployment_gpispace()
+
+-find_package (Boost 1.61 REQUIRED
+-  COMPONENTS program_options
+-)
++if (NOT TARGET Boost::program_options)
++  find_package (Boost 1.61 REQUIRED
++    COMPONENTS program_options
++  )
++endif()
+ if (SWH_TEST)
+   find_package (Boost 1.61 QUIET
+     COMPONENTS unit_test_framework
+@@ -59,6 +61,7 @@ if (SWH_TEST)
+   endif()
+ endif()
+ 
++include_directories (BEFORE "${BOOST_ROOT}/include")
+ include_directories ("${PROJECT_SOURCE_DIR}")
+ 
+ install (FILES interface.hpp DESTINATION include/stochastic_with_heureka)
+@@ -158,6 +161,7 @@ add_custom_command (
+           --output=/dev/null
+           --path-to-cpp=${CMAKE_CURRENT_BINARY_DIR}/gen
+           && make
++          CXX=${CMAKE_CXX_COMPILER}
+           GSPC_HOME=${GSPC_HOME}
+           BOOST_ROOT=${BOOST_ROOT}
+           -C ${CMAKE_CURRENT_BINARY_DIR}/gen
