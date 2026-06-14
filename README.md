@@ -1,108 +1,120 @@
-# Spack for CAS-GPI-Space
+# Spack packages for Singular and GPI-Space
 
-This is a repo containing Spack scripts for installing various projects in the
-CAS-GPI-Space framework
+This repository contains Spack package recipes for Singular, GPI-Space, and
+packages built on top of them.
 
-Spack is a package manager specifically aimed at handling software installations in supercomputing environments, but
-usable on anything from a personal computer to an HPC cluster. It supports Linux and macOS (note that the CAS-GPI-Space
-framework and hence our packages require Linux).
+The recipes are intended for current Spack releases. The instructions below use
+Spack 1.1.1. Linux is supported for the full GPI-Space stack. macOS is supported
+for Singular and for GPI-Space without IML/GPI-2 support.
 
-We will assume that the user has some directory path with read and
-write access. In the following, we assume this path is set as the environment variable
-`software_ROOT`, as detailed in the following example:
+## Setup
+
+Choose a writable directory for Spack and this package repository:
 
 ```bash
 export software_ROOT=~/singular-gpispace
-
+mkdir -p "$software_ROOT"
 ```
-Note, this needs to be set again if you open a new terminal session (preferably set it automatically by adding the line to your .profile file).
+
+Set this variable again in each new shell, or add it to your shell profile.
 
 ## Install Spack
-If Spack is not already present in the above directory, clone Spack from Github:
-```bash
-git clone https://github.com/spack/spack.git $software_ROOT/spack
 
-```
-We check out verison v0.19.0 of Spack (the current version):
-```bash
-cd $software_ROOT/spack
-git checkout releases/v0.19
-cd $software_ROOT
+Clone Spack and check out the 1.1 release branch:
 
+```bash
+git clone https://github.com/spack/spack.git "$software_ROOT/spack"
+cd "$software_ROOT/spack"
+git checkout releases/v1.1
 ```
-Spack requires a couple of standard system packages to be present. For example, on an Ubuntu machines they can be installed by the following commands (which typically require sudo privilege)
+
+To use Spack from the command line:
+
+```bash
+. "$software_ROOT/spack/share/spack/setup-env.sh"
+```
+
+Run this setup command in each new shell, or add it to your shell profile.
+
+On Ubuntu/Debian, install the common system dependencies first:
 
 ```bash
 sudo apt update
-
-```
-```bash
-sudo apt install build-essential ca-certificates coreutils curl environment-modules gfortran git gpg lsb-release python3 python3-distutils python3-venv unzip zip
-
+sudo apt install build-essential ca-certificates coreutils curl environment-modules gfortran git gnupg lsb-release python3 python3-venv unzip zip
 ```
 
-To be able to use spack from the command line, run the setup script:
-```bash
-. $software_ROOT/spack/share/spack/setup-env.sh
+Spack bootstraps its solver the first time it concretizes a spec:
 
-```
-Note, this script needs to be executed again if you open a new terminal session (preferably set it automatically by adding the line to your .profile file).
-
-Finally, Spack needs to boostrap clingo.  This can be done by concretizing any
-spec, for example
 ```bash
 spack spec zlib
-
 ```
 
-Note: If you experience connection timeouts due to a slow internet connection you can set in the following file the variable `connect_timeout` to a larger value.
-```bash
-vim $software_ROOT/spack/etc/spack/defaults/config.yaml
-
-```
-
-### How to uninstall Spack
-Note that Spack can be uninstalled by just deleting its directory and its configuration files. Be CAREFUL to do that, since it will delete your Spack setup. Typically you do NOT want to do that now, so the code is commented out. It can be useful if your Spack installation is broken:
+If downloads fail because of a slow connection, increase `connect_timeout` in:
 
 ```bash
-#cd
-#rm -rf $software_ROOT/spack/
-#rm -rf .spack
-
+"$software_ROOT/spack/etc/spack/defaults/config.yaml"
 ```
 
-## Install the CAS-GPI-Space framework
+## Add This Repository
 
-Once you have installed Spack, our package can be installed with just three lines of code.
+Clone this repository and add it as a Spack package repository:
 
-Clone the CAS-GPI-Space package repository into this directory:
 ```bash
-git clone https://github.com/singular-gpispace/spack-packages.git $software_ROOT/spack-packages
-
+git clone https://github.com/singular-gpispace/spack-packages.git "$software_ROOT/spack-packages"
+spack repo add "$software_ROOT/spack-packages"
 ```
 
-Add the CAS-GPI-Space package repository to the Spack installation:
+Check that Spack sees the packages:
+
 ```bash
-spack repo add $software_ROOT/spack-packages
-
+spack repo list
+spack info singular
+spack info gpi-space
 ```
 
-## Installing packages
+## Install Packages
 
-Now you are good to go to install specific packages of the framework. For example, you could do:
+Install Singular 4.3.0:
+
+```bash
+spack install singular@4.3.0
+```
+
+Install GPI-Space 26.3 on Linux:
+
+```bash
+spack install gpi-space@26.3
+```
+
+Install GPI-Space 26.3 on macOS:
+
+```bash
+spack install gpi-space@26.3~iml
+```
+
+Load an installed package before using it:
+
+```bash
+spack load singular@4.3.0
+```
+
+Other packages in this repository, such as `pfd-parallel`, can be installed in
+the same way:
 
 ```bash
 spack install pfd-parallel
-
+spack load pfd-parallel
 ```
 
-If you install your first package, this will take a bit of time since a lot of dependencies are installed, e.g. Singular and GPI-Space.
+The first install may take a long time because Spack also builds dependencies.
 
-To use the package you have to load it:
+## Uninstall Spack
+
+Spack can be removed by deleting its checkout and user configuration. This is
+destructive, so only do it when you really want to remove the installation:
 
 ```bash
-spack load pfd-parallel
-
+# cd
+# rm -rf "$software_ROOT/spack"
+# rm -rf ~/.spack
 ```
-
-Please refer to the repos of the various packages on how to use them.
