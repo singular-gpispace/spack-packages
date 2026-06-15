@@ -236,11 +236,18 @@ class PfdParallel(CMakePackage):
                 "    throw std::runtime_error (\"negative SSI string length\");\n"
                 "  }\n"
                 "  char* s = static_cast<char*> (omAlloc (len + 1));\n"
+                "  s_getc (d->f_read);\n"
                 "  s_readbytes (s, len, d->f_read);\n"
                 "  s[len] = '\\0';\n"
                 "  return s;\n"
                 "}",
                 "interface/singular_functions.cpp",
+            )
+            filter_file(
+                "#define SSI_VERSION 13",
+                "#define SSI_VERSION 15",
+                "interface/singular_functions.hpp",
+                string=True,
             )
             filter_file(
                 "#include <config.hpp>",
